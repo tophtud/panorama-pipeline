@@ -1,0 +1,20 @@
+# 대용량 바이너리 파일
+output/pointcloud.ply
+output/pointcloud_web.json
+output/mesh/scene_mesh.ply
+output/openmvs/images/
+output/openmvs/colmap_persp/points3D.txt
+
+# 스크린샷
+viewer_screenshot.png
+viewer_screenshot.webp
+viewer_with_3dmap.webp
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+
+# 임시 파일
+*.tmp
+*.bak
