@@ -1,0 +1,68 @@
+# Equirectangular model for Insta360 X3
+# Based on ai4ce/insta360_ros_driver configuration
+# Adapted for stella_vslam
+
+Camera:
+  name: "Insta360 X3"
+  setup: "monocular"
+  model: "equirectangular"
+
+  fps: 30.0
+  cols: 3840
+  rows: 1920
+  
+  color_order: "RGB"
+
+Preprocessing:
+  min_size: 800
+  mask_rectangles:
+    - [0.0, 1.0, 0.0, 0.1]
+    - [0.0, 1.0, 0.84, 1.0]
+    - [0.0, 0.2, 0.7, 1.0]
+    - [0.8, 1.0, 0.7, 1.0]
+
+Feature:
+  name: "default ORB feature extraction setting"
+  scale_factor: 1.2
+  num_levels: 8
+  ini_fast_threshold: 20
+  min_fast_threshold: 7
+
+Mapping:
+  backend: "g2o"
+   # --- 아래 두 줄을 추가 ---
+  keyframe_insertion_interval_ratio: 0.4
+  num_tracked_points_for_keyframe_insertion_ratio: 0.7
+  # ---------------------------------
+  baseline_dist_thr_ratio: 0.02
+  redundant_obs_ratio_thr: 0.95
+  num_covisibilities_for_landmark_generation: 20
+  num_covisibilities_for_landmark_fusion: 20
+  residual_deg_thr: 0.4
+
+Tracking:
+  backend: "g2o"
+
+LoopDetector:
+  backend: "g2o"
+  enabled: false
+  reject_by_graph_distance: true
+  min_distance_on_graph: 50
+
+GraphOptimizer:
+  min_num_shared_lms: 200
+
+GlobalOptimizer:
+  thr_neighbor_keyframes: 100
+
+System:
+  map_format: "msgpack"
+  num_grid_cols: 192
+  num_grid_rows: 96
+
+# Insta360 X3 Specifications:
+# - Dual 1/2" 48MP sensors
+# - 5.7K 360° video (5760 x 2880)
+# - Focal length: 6.7mm
+# - Aperture: F1.9
+# - Dual fisheye lenses
