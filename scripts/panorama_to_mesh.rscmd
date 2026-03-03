@@ -1,0 +1,49 @@
+// panorama_to_mesh.rscmd
+// RealityScan CLI 배치 파일 - 파노라마 이미지 → 3D 메쉬 자동 생성
+//
+// 사용법 (Windows):
+//   "C:\Program Files\Epic Games\RealityScan\RealityScan.exe" ^
+//       -execRSCMD panorama_to_mesh.rscmd ^
+//       "C:\path\to\images" ^
+//       "C:\path\to\output\scene_mesh.glb"
+//
+// 사용법 (Linux):
+//   RealityScan -execRSCMD panorama_to_mesh.rscmd \
+//       /path/to/images \
+//       /path/to/output/scene_mesh.glb
+//
+// 변수:
+//   $(arg1) = 파노라마 이미지 폴더 경로
+//   $(arg2) = 출력 GLB 파일 경로
+
+-headless
+-newScene
+
+// 이미지 폴더 추가
+-addFolder $(arg1)
+
+// 이미지 정렬 (카메라 포즈 추정)
+-align
+
+// 가장 큰 컴포넌트 선택
+-selectMaximalComponent
+
+// 3D 메쉬 계산 (normal 품질)
+-calculateNormalModel
+
+// 가장 큰 컴포넌트 선택
+-selectMaximalComponent
+
+// UV 언래핑
+-unwrap
+
+// 텍스처 계산
+-calculateTexture
+
+// GLB 포맷으로 내보내기
+-exportSelectedModel $(arg2)
+
+// 프로젝트 저장
+-save $(arg1)/realityscan_project.rsproj
+
+-quit
