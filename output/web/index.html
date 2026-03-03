@@ -7,67 +7,65 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #0a0a0f; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-
   #app { width: 100vw; height: 100vh; position: relative; }
-
-  /* 메인 파노라마 뷰어 */
   #panorama-canvas { width: 100%; height: 100%; display: block; }
 
-  /* 상단 헤더 */
+  /* ── 헤더 ── */
   #header {
     position: absolute; top: 0; left: 0; right: 0;
     padding: 12px 20px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-    display: flex; align-items: center; gap: 16px;
-    z-index: 100;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+    display: flex; align-items: center; gap: 12px; z-index: 100;
   }
-  #header h1 { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.5px; }
-  #header .badge {
+  #header h1 { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.5px; }
+  .badge {
     background: rgba(99,179,237,0.2); border: 1px solid rgba(99,179,237,0.5);
     color: #63b3ed; padding: 2px 8px; border-radius: 12px; font-size: 11px;
   }
-  #kf-info {
-    margin-left: auto; font-size: 12px; color: #a0aec0;
-  }
+  #kf-info { margin-left: auto; font-size: 12px; color: #a0aec0; }
 
-  /* 좌측 미니맵 패널 */
+  /* ── 뷰 모드 토글 ── */
+  #view-toggle {
+    position: absolute; top: 60px; right: 230px;
+    display: flex; gap: 6px; z-index: 100;
+  }
+  .view-btn {
+    background: rgba(10,10,20,0.85); border: 1px solid rgba(255,255,255,0.15);
+    color: #a0aec0; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+    font-size: 12px; transition: all 0.15s;
+  }
+  .view-btn.active { background: rgba(99,179,237,0.2); border-color: #63b3ed; color: #fff; }
+
+  /* ── 좌측 미니맵 ── */
   #minimap-panel {
     position: absolute; left: 16px; top: 60px; bottom: 80px;
     width: 220px;
-    background: rgba(10,10,20,0.85);
+    background: rgba(10,10,20,0.88);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    overflow: hidden;
-    z-index: 100;
+    border-radius: 12px; overflow: hidden; z-index: 100;
     display: flex; flex-direction: column;
   }
   #minimap-header {
     padding: 10px 14px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    font-size: 11px; font-weight: 600; color: #90cdf4; text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 11px; font-weight: 600; color: #90cdf4; text-transform: uppercase; letter-spacing: 1px;
   }
-  #minimap-canvas-container {
-    flex: 1; position: relative; overflow: hidden;
-  }
-  #minimap-canvas { width: 100%; height: 100%; display: block; }
+  #minimap-canvas-container { flex: 1; position: relative; overflow: hidden; }
+  #minimap-canvas { width: 100%; height: 100%; display: block; cursor: pointer; }
 
-  /* 우측 키프레임 목록 */
+  /* ── 우측 키프레임 목록 ── */
   #keyframe-panel {
     position: absolute; right: 16px; top: 60px; bottom: 80px;
     width: 200px;
-    background: rgba(10,10,20,0.85);
+    background: rgba(10,10,20,0.88);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    overflow: hidden;
-    z-index: 100;
+    border-radius: 12px; overflow: hidden; z-index: 100;
     display: flex; flex-direction: column;
   }
   #keyframe-header {
     padding: 10px 14px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    font-size: 11px; font-weight: 600; color: #90cdf4; text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 11px; font-weight: 600; color: #90cdf4; text-transform: uppercase; letter-spacing: 1px;
   }
   #keyframe-list {
     flex: 1; overflow-y: auto; padding: 6px;
@@ -76,25 +74,22 @@
   .kf-item {
     padding: 7px 10px; border-radius: 7px; cursor: pointer;
     margin-bottom: 3px; transition: all 0.15s;
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px;
+    display: flex; align-items: center; gap: 8px; font-size: 12px;
+    border: 1px solid transparent;
   }
   .kf-item:hover { background: rgba(99,179,237,0.15); }
-  .kf-item.active { background: rgba(99,179,237,0.25); border: 1px solid rgba(99,179,237,0.4); }
+  .kf-item.active { background: rgba(99,179,237,0.25); border-color: rgba(99,179,237,0.4); }
   .kf-dot {
     width: 8px; height: 8px; border-radius: 50%;
-    background: #63b3ed; flex-shrink: 0;
+    background: rgba(99,179,237,0.5); flex-shrink: 0;
   }
   .kf-item.active .kf-dot { background: #fff; box-shadow: 0 0 6px #63b3ed; }
-  .kf-id { color: #90cdf4; font-weight: 600; min-width: 30px; }
-  .kf-pos { color: #718096; font-size: 10px; }
 
-  /* 하단 컨트롤 바 */
+  /* ── 하단 컨트롤 ── */
   #controls {
     position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 12px 20px;
-    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; display: flex; align-items: center; gap: 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
     z-index: 100;
   }
   .ctrl-btn {
@@ -104,7 +99,6 @@
   }
   .ctrl-btn:hover { background: rgba(99,179,237,0.3); border-color: #63b3ed; }
   .ctrl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
   #progress-bar {
     flex: 1; height: 4px; background: rgba(255,255,255,0.1);
     border-radius: 2px; cursor: pointer; position: relative;
@@ -117,29 +111,80 @@
     position: absolute; top: 50%; transform: translate(-50%, -50%);
     width: 12px; height: 12px; border-radius: 50%;
     background: #fff; box-shadow: 0 0 8px rgba(99,179,237,0.8);
-    pointer-events: none;
+    pointer-events: none; transition: left 0.3s;
   }
 
-  /* 3D 맵 뷰 토글 */
+  /* ── 3D 맵 패널 ── */
   #map3d-panel {
     position: absolute; left: 250px; top: 60px;
-    width: 300px; height: 220px;
-    background: rgba(10,10,20,0.9);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; overflow: hidden;
-    z-index: 100; display: none;
+    width: 360px; height: 260px;
+    background: rgba(10,10,20,0.92);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; overflow: hidden; z-index: 100; display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
   #map3d-panel.visible { display: block; }
   #map3d-header {
     padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
     font-size: 11px; font-weight: 600; color: #90cdf4; text-transform: uppercase;
-    letter-spacing: 1px; display: flex; justify-content: space-between;
+    letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;
   }
-  #map3d-canvas { width: 100%; height: calc(100% - 32px); display: block; }
+  #map3d-canvas { width: 100%; height: calc(100% - 32px); display: block; cursor: grab; }
+  #map3d-canvas:active { cursor: grabbing; }
 
-  /* 로딩 오버레이 */
+  /* ── 핫스팟 ── */
+  #hotspot-container { position: absolute; inset: 0; pointer-events: none; z-index: 50; }
+  .hotspot {
+    position: absolute; width: 44px; height: 44px;
+    border-radius: 50%; cursor: pointer;
+    background: rgba(99,179,237,0.25);
+    border: 2px solid rgba(99,179,237,0.9);
+    transform: translate(-50%, -50%);
+    transition: all 0.2s ease;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: all;
+    box-shadow: 0 0 16px rgba(99,179,237,0.4), inset 0 0 12px rgba(99,179,237,0.1);
+    animation: hotspot-pulse 2s ease-in-out infinite;
+  }
+  @keyframes hotspot-pulse {
+    0%, 100% { box-shadow: 0 0 16px rgba(99,179,237,0.4), inset 0 0 12px rgba(99,179,237,0.1); }
+    50% { box-shadow: 0 0 28px rgba(99,179,237,0.7), inset 0 0 16px rgba(99,179,237,0.2); }
+  }
+  .hotspot:hover {
+    background: rgba(99,179,237,0.5);
+    transform: translate(-50%, -50%) scale(1.15);
+    animation: none;
+    box-shadow: 0 0 32px rgba(99,179,237,0.8);
+  }
+  .hotspot-arrow { color: #fff; font-size: 14px; font-weight: bold; }
+  .hotspot-label {
+    position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; color: #90cdf4; white-space: nowrap;
+    background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 4px;
+    pointer-events: none;
+  }
+
+  /* ── 전환 오버레이 (페이드) ── */
+  #transition-overlay {
+    position: absolute; inset: 0; background: #000;
+    opacity: 0; pointer-events: none; z-index: 60;
+    transition: opacity 0.25s ease;
+  }
+  #transition-overlay.fade-in { opacity: 1; }
+
+  /* ── 위치 이동 표시 ── */
+  #location-indicator {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(99,179,237,0.15); border: 1px solid rgba(99,179,237,0.6);
+    border-radius: 12px; padding: 10px 20px;
+    font-size: 13px; color: #90cdf4; pointer-events: none;
+    opacity: 0; transition: opacity 0.3s; z-index: 70;
+  }
+  #location-indicator.show { opacity: 1; }
+
+  /* ── 로딩 ── */
   #loading {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+    position: absolute; inset: 0; background: rgba(0,0,0,0.92);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     z-index: 200;
   }
@@ -151,58 +196,21 @@
     animation: spin 0.8s linear infinite; margin-bottom: 16px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* 핫스팟 (다음 위치로 이동) */
-  .hotspot {
-    position: absolute; width: 36px; height: 36px;
-    border-radius: 50%; cursor: pointer;
-    background: rgba(99,179,237,0.3);
-    border: 2px solid rgba(99,179,237,0.8);
-    transform: translate(-50%, -50%);
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center;
-    pointer-events: all;
-  }
-  .hotspot:hover {
-    background: rgba(99,179,237,0.6);
-    transform: translate(-50%, -50%) scale(1.2);
-  }
-  .hotspot::after {
-    content: '▶'; color: #fff; font-size: 12px;
-  }
-  #hotspot-container {
-    position: absolute; inset: 0; pointer-events: none; z-index: 50;
-  }
-
-  /* 뷰 모드 토글 */
-  #view-toggle {
-    position: absolute; top: 60px; right: 230px;
-    display: flex; gap: 6px; z-index: 100;
-  }
-  .view-btn {
-    background: rgba(10,10,20,0.85); border: 1px solid rgba(255,255,255,0.15);
-    color: #a0aec0; padding: 6px 12px; border-radius: 8px; cursor: pointer;
-    font-size: 12px; transition: all 0.15s;
-  }
-  .view-btn.active { background: rgba(99,179,237,0.2); border-color: #63b3ed; color: #fff; }
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- 로딩 -->
   <div id="loading">
     <div class="spinner"></div>
     <h2>360° Tour Loading...</h2>
-    <p id="loading-msg">Initializing Three.js renderer...</p>
+    <p id="loading-msg">Initializing renderer...</p>
   </div>
 
-  <!-- 메인 파노라마 캔버스 -->
   <canvas id="panorama-canvas"></canvas>
-
-  <!-- 핫스팟 컨테이너 -->
   <div id="hotspot-container"></div>
+  <div id="transition-overlay"></div>
+  <div id="location-indicator">📍 이동 중...</div>
 
-  <!-- 헤더 -->
   <div id="header">
     <h1>360° Virtual Tour</h1>
     <span class="badge">stella_vSLAM</span>
@@ -210,13 +218,11 @@
     <div id="kf-info">KF <span id="current-kf">0</span> / <span id="total-kf">103</span></div>
   </div>
 
-  <!-- 뷰 모드 토글 -->
   <div id="view-toggle">
     <button class="view-btn active" onclick="setViewMode('panorama')" id="btn-panorama">🌐 파노라마</button>
     <button class="view-btn" onclick="setViewMode('map3d')" id="btn-map3d">🗺️ 3D 맵</button>
   </div>
 
-  <!-- 미니맵 (2D 탑뷰) -->
   <div id="minimap-panel">
     <div id="minimap-header">📍 카메라 경로 (탑뷰)</div>
     <div id="minimap-canvas-container">
@@ -224,22 +230,19 @@
     </div>
   </div>
 
-  <!-- 3D 맵 패널 -->
   <div id="map3d-panel">
     <div id="map3d-header">
       <span>3D 포인트 클라우드 + 경로</span>
-      <span style="cursor:pointer;color:#718096" onclick="toggleMap3D()">✕</span>
+      <span style="cursor:pointer;color:#718096;font-size:14px" onclick="toggleMap3D()">✕</span>
     </div>
     <canvas id="map3d-canvas"></canvas>
   </div>
 
-  <!-- 키프레임 목록 -->
   <div id="keyframe-panel">
     <div id="keyframe-header">🎯 키프레임 목록</div>
     <div id="keyframe-list"></div>
   </div>
 
-  <!-- 하단 컨트롤 -->
   <div id="controls">
     <button class="ctrl-btn" id="btn-prev" onclick="navigateTo(currentKF - 1)">◀ 이전</button>
     <div id="progress-bar" onclick="onProgressClick(event)">
@@ -254,17 +257,19 @@
   </div>
 </div>
 
+<!-- Three.js + Loaders -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
+
 <script>
 // ============================================================
 // 전역 상태
 // ============================================================
 let scene, camera, renderer;
 let panoramaMesh, pointCloudMesh;
-let mapScene, mapCamera, mapRenderer;
 let minimapCtx;
 let cameraPathData = null;
 let pointCloudData = null;
@@ -280,55 +285,51 @@ let sphericalAngles = { phi: Math.PI / 2, theta: 0 };
 let textureCache = {};
 let currentTexture = null;
 
+// ── 전환 애니메이션 상태 ──
+let isTransitioning = false;
+let targetKF = -1;
+
+// ── 카메라 방향 보간 상태 ──
+let cameraLerpActive = false;
+let cameraLerpFrom = { phi: Math.PI / 2, theta: 0 };
+let cameraLerpTo   = { phi: Math.PI / 2, theta: 0 };
+let cameraLerpT    = 0;
+const CAMERA_LERP_DURATION = 0.8; // 초
+
 // ============================================================
 // 초기화
 // ============================================================
 async function init() {
   setLoadingMsg('Three.js 렌더러 초기화...');
-  
-  // 메인 렌더러 (파노라마)
   const canvas = document.getElementById('panorama-canvas');
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
-  
+
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 0, 0);
-  
-  // 파노라마 구체 (내부에서 보는 방식)
+
   const geometry = new THREE.SphereGeometry(500, 60, 40);
-  geometry.scale(-1, 1, 1); // 내부 렌더링
+  geometry.scale(-1, 1, 1);
   const material = new THREE.MeshBasicMaterial({ color: 0x111122 });
   panoramaMesh = new THREE.Mesh(geometry, material);
   scene.add(panoramaMesh);
-  
-  // 데이터 로드
+
   setLoadingMsg('카메라 경로 데이터 로드...');
   await loadCameraPath();
-  
+
   setLoadingMsg('포인트 클라우드 로드...');
   await loadPointCloud();
-  
-  // 미니맵 초기화
+
   initMinimap();
-  
-  // 3D 맵 초기화
   initMap3D();
-  
-  // 키프레임 목록 생성
   buildKeyframeList();
-  
-  // 첫 번째 키프레임으로 이동
+
   await navigateTo(0);
-  
-  // 이벤트 리스너
   setupEventListeners();
-  
-  // 로딩 완료
+
   document.getElementById('loading').style.display = 'none';
-  
-  // 렌더 루프 시작
   animate();
 }
 
@@ -341,10 +342,8 @@ async function loadCameraPath() {
     cameraPathData = await resp.json();
     totalKF = cameraPathData.total_keyframes - 1;
     document.getElementById('total-kf').textContent = totalKF;
-    console.log(`[INFO] Loaded ${cameraPathData.total_keyframes} keyframes`);
   } catch(e) {
-    console.error('[ERROR] Failed to load camera_path.json:', e);
-    // 데모 데이터 생성
+    console.error('[ERROR] camera_path.json 로드 실패:', e);
     cameraPathData = generateDemoPath();
   }
 }
@@ -352,121 +351,120 @@ async function loadCameraPath() {
 async function loadPointCloud() {
   try {
     const resp = await fetch('../pointcloud_web.json');
+    if (!resp.ok) return;
     pointCloudData = await resp.json();
-    console.log(`[INFO] Loaded ${pointCloudData.points.length} point cloud points`);
-    createPointCloudMesh();
+    console.log(`[INFO] 포인트 클라우드: ${pointCloudData.points.length} 포인트`);
   } catch(e) {
-    console.error('[ERROR] Failed to load pointcloud_web.json:', e);
+    console.warn('[WARN] 포인트 클라우드 없음');
   }
 }
 
 function generateDemoPath() {
-  // 데모 경로 (U자형)
   const kfs = [];
   for (let i = 0; i < 104; i++) {
     const t = i / 103;
-    let x, z;
-    if (t < 0.33) {
-      x = 0; z = t * 3;
-    } else if (t < 0.67) {
-      const a = (t - 0.33) / 0.34 * Math.PI;
-      x = Math.sin(a) * 1.5; z = 1.0 + Math.cos(a) * 0.3;
-    } else {
-      x = 1.5; z = 1.0 - (t - 0.67) * 3;
-    }
+    const angle = t * Math.PI * 2;
     kfs.push({
-      id: i, timestamp: i * 0.033,
-      position: { x, y: 0, z },
-      forward: { x: 0, y: 0, z: 1 },
+      id: i,
       image_file: `frame_${String(i).padStart(4,'0')}.jpg`,
-      n_keypts: 18000
+      position: { x: Math.cos(angle) * 2, y: 0, z: Math.sin(angle) * 2 },
+      rotation: [0, -angle, 0]
     });
   }
   return { total_keyframes: 104, keyframes: kfs };
 }
 
 // ============================================================
-// 포인트 클라우드 메시 생성
+// 파노라마 네비게이션 (페이드 전환 + 카메라 방향 보간)
 // ============================================================
-function createPointCloudMesh() {
-  if (!pointCloudData || !cameraPathData) return;
-  
-  const kf0 = cameraPathData.keyframes[0];
-  const origin = new THREE.Vector3(
-    kf0.position.x, kf0.position.y, kf0.position.z
-  );
-  
-  const pts = pointCloudData.points;
-  const colors = pointCloudData.colors;
-  
-  const positions = new Float32Array(pts.length * 3);
-  const colorArr = new Float32Array(pts.length * 3);
-  
-  for (let i = 0; i < pts.length; i++) {
-    // SLAM 좌표계 → Three.js 좌표계 변환 (Y-up)
-    // SLAM: X-right, Y-down, Z-forward
-    // Three.js: X-right, Y-up, Z-backward
-    positions[i*3]   = (pts[i][0] - origin.x) * 100;  // X
-    positions[i*3+1] = -(pts[i][1] - origin.y) * 100; // Y (반전)
-    positions[i*3+2] = -(pts[i][2] - origin.z) * 100; // Z (반전)
-    
-    colorArr[i*3]   = colors[i][0];
-    colorArr[i*3+1] = colors[i][1];
-    colorArr[i*3+2] = colors[i][2];
-  }
-  
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('color', new THREE.BufferAttribute(colorArr, 3));
-  
-  const material = new THREE.PointsMaterial({
-    size: 2, vertexColors: true, sizeAttenuation: false, opacity: 0.6, transparent: true
-  });
-  
-  if (pointCloudMesh) scene.remove(pointCloudMesh);
-  pointCloudMesh = new THREE.Points(geometry, material);
-  // 파노라마 뷰에서는 포인트 클라우드 숨김 (3D 맵에서만 표시)
-  pointCloudMesh.visible = false;
-  scene.add(pointCloudMesh);
-}
-
-// ============================================================
-// 파노라마 네비게이션
-// ============================================================
-async function navigateTo(kfIndex) {
+async function navigateTo(kfIndex, options = {}) {
   if (!cameraPathData) return;
-  
+  if (isTransitioning && !options.force) return;
+
   const kfs = cameraPathData.keyframes;
   kfIndex = Math.max(0, Math.min(kfIndex, kfs.length - 1));
+  if (kfIndex === currentKF && !options.force) return;
+
+  isTransitioning = true;
+  targetKF = kfIndex;
+
+  // ── 1. 카메라 방향 보간 목표 계산 ──
+  const prevKf = kfs[currentKF];
+  const nextKf = kfs[kfIndex];
+  const dx = nextKf.position.x - prevKf.position.x;
+  const dz = nextKf.position.z - prevKf.position.z;
+  const dist = Math.sqrt(dx*dx + dz*dz);
+
+  if (dist > 0.01 && !options.noLook) {
+    // 이동 방향으로 카메라 회전 보간
+    const targetTheta = Math.atan2(dx, dz);
+    cameraLerpFrom = { phi: sphericalAngles.phi, theta: sphericalAngles.theta };
+    // 최단 각도 경로
+    let delta = targetTheta - sphericalAngles.theta;
+    while (delta >  Math.PI) delta -= Math.PI * 2;
+    while (delta < -Math.PI) delta += Math.PI * 2;
+    cameraLerpTo = { phi: Math.PI / 2, theta: sphericalAngles.theta + delta };
+    cameraLerpT = 0;
+    cameraLerpActive = true;
+  }
+
+  // ── 2. 위치 표시 ──
+  showLocationIndicator(`KF ${nextKf.id} 로 이동`);
+
+  // ── 3. 페이드 아웃 ──
+  await fadeOverlay(true, 200);
+
+  // ── 4. 상태 업데이트 ──
   currentKF = kfIndex;
-  
-  const kf = kfs[kfIndex];
-  
-  // UI 업데이트
-  document.getElementById('current-kf').textContent = kf.id;
+  document.getElementById('current-kf').textContent = nextKf.id;
   updateProgress(kfIndex, kfs.length - 1);
   updateKeyframeList(kfIndex);
   updateMinimap(kfIndex);
   updateMap3D(kfIndex);
   updateHotspots(kfIndex);
   updateNavButtons(kfIndex, kfs.length - 1);
-  
-  // 파노라마 텍스처 로드
-  await loadPanoramaTexture(kf);
+
+  // ── 5. 텍스처 로드 ──
+  await loadPanoramaTexture(nextKf);
+
+  // ── 6. 페이드 인 ──
+  await fadeOverlay(false, 200);
+
+  isTransitioning = false;
+  targetKF = -1;
+}
+
+// 페이드 오버레이 제어
+function fadeOverlay(show, duration) {
+  return new Promise(resolve => {
+    const el = document.getElementById('transition-overlay');
+    el.style.transition = `opacity ${duration}ms ease`;
+    if (show) {
+      el.classList.add('fade-in');
+    } else {
+      el.classList.remove('fade-in');
+    }
+    setTimeout(resolve, duration);
+  });
+}
+
+// 위치 표시 인디케이터
+function showLocationIndicator(text) {
+  const el = document.getElementById('location-indicator');
+  el.textContent = '📍 ' + text;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1500);
 }
 
 async function loadPanoramaTexture(kf) {
   const imgPath = `../images/${kf.image_file}`;
-  
   if (textureCache[kf.id]) {
     applyTexture(textureCache[kf.id]);
     return;
   }
-  
   return new Promise((resolve) => {
     const loader = new THREE.TextureLoader();
-    loader.load(
-      imgPath,
+    loader.load(imgPath,
       (texture) => {
         texture.minFilter = THREE.LinearFilter;
         texture.magFilter = THREE.LinearFilter;
@@ -475,8 +473,7 @@ async function loadPanoramaTexture(kf) {
         resolve();
       },
       undefined,
-      (err) => {
-        // 이미지 로드 실패 시 색상으로 대체
+      () => {
         const color = new THREE.Color().setHSL(kf.id / 104, 0.5, 0.3);
         panoramaMesh.material = new THREE.MeshBasicMaterial({ color });
         resolve();
@@ -486,17 +483,12 @@ async function loadPanoramaTexture(kf) {
 }
 
 function applyTexture(texture) {
-  if (currentTexture && currentTexture !== texture) {
-    // 텍스처 전환 애니메이션 (간단한 페이드)
-  }
   currentTexture = texture;
-  panoramaMesh.material = new THREE.MeshBasicMaterial({
-    map: texture, side: THREE.BackSide
-  });
+  panoramaMesh.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
 }
 
 // ============================================================
-// 미니맵 (2D 탑뷰)
+// 미니맵 (2D 탑뷰) - 클릭 시 이동 모션
 // ============================================================
 function initMinimap() {
   const canvas = document.getElementById('minimap-canvas');
@@ -504,26 +496,20 @@ function initMinimap() {
   canvas.width = container.offsetWidth || 220;
   canvas.height = container.offsetHeight || 300;
   minimapCtx = canvas.getContext('2d');
-  
-  // 클릭으로 키프레임 선택
   canvas.addEventListener('click', onMinimapClick);
-  
   drawMinimap(0);
 }
 
-function worldToMinimap(x, z, canvasW, canvasH, padding=20) {
+function worldToMinimap(x, z, canvasW, canvasH, padding=18) {
   if (!cameraPathData) return { px: 0, py: 0 };
-  
   const kfs = cameraPathData.keyframes;
   const xs = kfs.map(k => k.position.x);
   const zs = kfs.map(k => k.position.z);
   const xMin = Math.min(...xs), xMax = Math.max(...xs);
   const zMin = Math.min(...zs), zMax = Math.max(...zs);
-  
   const rangeX = xMax - xMin || 1;
   const rangeZ = zMax - zMin || 1;
   const scale = Math.min((canvasW - padding*2) / rangeX, (canvasH - padding*2) / rangeZ);
-  
   const px = padding + (x - xMin) * scale;
   const py = canvasH - padding - (z - zMin) * scale;
   return { px, py };
@@ -531,20 +517,18 @@ function worldToMinimap(x, z, canvasW, canvasH, padding=20) {
 
 function drawMinimap(activeIdx) {
   if (!minimapCtx || !cameraPathData) return;
-  
   const canvas = document.getElementById('minimap-canvas');
   const W = canvas.width, H = canvas.height;
   const ctx = minimapCtx;
-  
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(10,10,30,0.8)';
-  ctx.fillRect(0, 0, W, H);
-  
   const kfs = cameraPathData.keyframes;
-  
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(8,8,20,0.9)';
+  ctx.fillRect(0, 0, W, H);
+
   // 경로 선
   ctx.beginPath();
-  ctx.strokeStyle = 'rgba(99,179,237,0.4)';
+  ctx.strokeStyle = 'rgba(99,179,237,0.35)';
   ctx.lineWidth = 1.5;
   kfs.forEach((kf, i) => {
     const { px, py } = worldToMinimap(kf.position.x, kf.position.z, W, H);
@@ -552,44 +536,43 @@ function drawMinimap(activeIdx) {
     else ctx.lineTo(px, py);
   });
   ctx.stroke();
-  
-  // 키프레임 점
+
+  // 키프레임 점 (클릭 가능한 포인터)
   kfs.forEach((kf, i) => {
     const { px, py } = worldToMinimap(kf.position.x, kf.position.z, W, H);
     const isActive = i === activeIdx;
-    
-    ctx.beginPath();
-    ctx.arc(px, py, isActive ? 5 : 3, 0, Math.PI * 2);
-    ctx.fillStyle = isActive ? '#fff' : 'rgba(99,179,237,0.7)';
-    ctx.fill();
-    
+
     if (isActive) {
+      // 현재 위치: 크고 밝게
       ctx.beginPath();
-      ctx.arc(px, py, 9, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(99,179,237,0.8)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      
-      // 전방 방향 화살표
-      const fwd = kf.forward;
-      const len = 18;
+      ctx.arc(px, py, 7, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(99,179,237,0.2)';
+      ctx.fill();
       ctx.beginPath();
-      ctx.moveTo(px, py);
-      ctx.lineTo(px + fwd.x * len, py - fwd.z * len);
-      ctx.strokeStyle = '#f6ad55';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      ctx.arc(px, py, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.shadowColor = '#63b3ed';
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    } else {
+      // 일반 포인터 - 클릭 가능함을 시각적으로 표시
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(99,179,237,0.6)';
+      ctx.fill();
     }
   });
-  
-  // 시작/끝 레이블
-  const start = worldToMinimap(kfs[0].position.x, kfs[0].position.z, W, H);
-  const end = worldToMinimap(kfs[kfs.length-1].position.x, kfs[kfs.length-1].position.z, W, H);
-  ctx.font = '9px sans-serif';
-  ctx.fillStyle = '#68d391';
-  ctx.fillText('START', start.px + 6, start.py - 4);
-  ctx.fillStyle = '#fc8181';
-  ctx.fillText('END', end.px + 6, end.py - 4);
+
+  // START/END 라벨
+  if (kfs.length > 0) {
+    const s = worldToMinimap(kfs[0].position.x, kfs[0].position.z, W, H);
+    ctx.fillStyle = '#63b3ed'; ctx.font = '9px sans-serif';
+    ctx.fillText('START', s.px + 5, s.py - 5);
+    const e = worldToMinimap(kfs[kfs.length-1].position.x, kfs[kfs.length-1].position.z, W, H);
+    ctx.fillStyle = '#9f7aea';
+    ctx.fillText('END', e.px + 5, e.py - 5);
+  }
 }
 
 function onMinimapClick(e) {
@@ -598,90 +581,85 @@ function onMinimapClick(e) {
   const rect = canvas.getBoundingClientRect();
   const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
   const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-  
   const kfs = cameraPathData.keyframes;
   let closest = 0, minDist = Infinity;
-  
   kfs.forEach((kf, i) => {
     const { px, py } = worldToMinimap(kf.position.x, kf.position.z, canvas.width, canvas.height);
     const d = Math.hypot(mx - px, my - py);
     if (d < minDist) { minDist = d; closest = i; }
   });
-  
-  if (minDist < 20) navigateTo(closest);
+  if (minDist < 22) {
+    navigateTo(closest);
+  }
 }
 
-function updateMinimap(activeIdx) {
-  drawMinimap(activeIdx);
-}
+function updateMinimap(activeIdx) { drawMinimap(activeIdx); }
 
 // ============================================================
 // 3D 맵 뷰
 // ============================================================
-let map3dScene, map3dCamera, map3dRenderer, map3dControls;
+let map3dScene, map3dCamera, map3dRenderer;
 let map3dPathLine, map3dCurrentMarker;
-let map3dAnimating = false;
+let map3dMouseDown = false, map3dDragged = false, map3dLastMouse = { x: 0, y: 0 };
+let map3dSpherical = { theta: 0.5, phi: 0.8, radius: 4 };
+let meshObject = null;
 
 function initMap3D() {
   const canvas = document.getElementById('map3d-canvas');
   map3dRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  map3dRenderer.setSize(300, 188);
+  map3dRenderer.setSize(360, 228);
   map3dRenderer.setClearColor(0x050510, 1);
-  
+
   map3dScene = new THREE.Scene();
-  map3dCamera = new THREE.PerspectiveCamera(60, 300/188, 0.01, 1000);
+  map3dCamera = new THREE.PerspectiveCamera(60, 360/228, 0.01, 1000);
   map3dCamera.position.set(0, 3, 3);
   map3dCamera.lookAt(0, 0, 0);
-  
-  // 조명
+
   map3dScene.add(new THREE.AmbientLight(0x404060, 2));
   const dirLight = new THREE.DirectionalLight(0x8080ff, 1);
   dirLight.position.set(1, 2, 1);
   map3dScene.add(dirLight);
-  
+
   if (!cameraPathData) return;
-  
   const kfs = cameraPathData.keyframes;
   const origin = kfs[0].position;
-  const scale = 2; // 시각화 스케일
-  
+  const scale = 2;
+
   // 경로 라인
   const pathPoints = kfs.map(kf => new THREE.Vector3(
     (kf.position.x - origin.x) * scale,
     -(kf.position.y - origin.y) * scale,
     -(kf.position.z - origin.z) * scale
   ));
-  
   const pathGeo = new THREE.BufferGeometry().setFromPoints(pathPoints);
-  const pathMat = new THREE.LineBasicMaterial({ color: 0x63b3ed, linewidth: 2 });
-  map3dPathLine = new THREE.Line(pathGeo, pathMat);
+  map3dPathLine = new THREE.Line(pathGeo, new THREE.LineBasicMaterial({ color: 0x63b3ed, linewidth: 2 }));
   map3dScene.add(map3dPathLine);
-  
-  // 키프레임 점들
-  const kfGeo = new THREE.BufferGeometry();
-  const kfPositions = new Float32Array(kfs.length * 3);
+
+  // 키프레임 점들 (클릭 가능 마커)
   kfs.forEach((kf, i) => {
-    kfPositions[i*3]   = (kf.position.x - origin.x) * scale;
-    kfPositions[i*3+1] = -(kf.position.y - origin.y) * scale;
-    kfPositions[i*3+2] = -(kf.position.z - origin.z) * scale;
+    const geo = new THREE.SphereGeometry(0.04, 6, 6);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x4299e1 });
+    const sphere = new THREE.Mesh(geo, mat);
+    sphere.position.set(
+      (kf.position.x - origin.x) * scale,
+      -(kf.position.y - origin.y) * scale,
+      -(kf.position.z - origin.z) * scale
+    );
+    sphere.userData.kfIndex = i;
+    map3dScene.add(sphere);
   });
-  kfGeo.setAttribute('position', new THREE.BufferAttribute(kfPositions, 3));
-  const kfMat = new THREE.PointsMaterial({ color: 0x4299e1, size: 0.05 });
-  map3dScene.add(new THREE.Points(kfGeo, kfMat));
-  
+
   // 현재 위치 마커
-  const markerGeo = new THREE.SphereGeometry(0.06, 8, 8);
+  const markerGeo = new THREE.SphereGeometry(0.07, 10, 10);
   const markerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   map3dCurrentMarker = new THREE.Mesh(markerGeo, markerMat);
   map3dScene.add(map3dCurrentMarker);
-  
-  // 포인트 클라우드 (3D 맵용, 다운샘플)
+
+  // 포인트 클라우드 (다운샘플)
   if (pointCloudData) {
     const pts = pointCloudData.points;
-    const step = Math.max(1, Math.floor(pts.length / 5000)); // 최대 5000포인트
-    const pcPositions = [];
-    const pcColors = [];
-    
+    const step = Math.max(1, Math.floor(pts.length / 5000));
+    const pcPositions = [], pcColors = [];
     for (let i = 0; i < pts.length; i += step) {
       pcPositions.push(
         (pts[i][0] - origin.x) * scale,
@@ -691,228 +669,138 @@ function initMap3D() {
       const c = pointCloudData.colors[i];
       pcColors.push(c[0], c[1], c[2]);
     }
-    
     const pcGeo = new THREE.BufferGeometry();
     pcGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pcPositions), 3));
     pcGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(pcColors), 3));
-    const pcMat = new THREE.PointsMaterial({ size: 0.03, vertexColors: true, opacity: 0.5, transparent: true });
-    map3dScene.add(new THREE.Points(pcGeo, pcMat));
+    map3dScene.add(new THREE.Points(pcGeo, new THREE.PointsMaterial({ size: 0.03, vertexColors: true, opacity: 0.5, transparent: true })));
   }
-  
-  // 마우스 회전 컨트롤
-  setupMap3DControls();
 
-  // OpenMVS 메시 로드 시도 (파일이 있을 때만)
+  setupMap3DControls();
   loadMeshIntoMap3D();
-  
   renderMap3D();
 }
 
-// ============================================================
-// OpenMVS OBJ 메시 3D 맵에 로드
-// ============================================================
-let meshObject = null;
-
+// ── 3D 맵 메쉬 로드 (GLB / PLY / OBJ 순서) ──
 function loadMeshIntoMap3D() {
-  // 메시 파일 경로 후보 (우선순위: COLMAP PLY > OpenMVS OBJ)
   const candidates = [
-    { path: '../mesh/scene_mesh.ply',          type: 'ply' },
-    { path: '../mesh/dense_pointcloud.ply',     type: 'ply' },
-    { path: '../colmap_dense/dense/meshed-poisson.ply', type: 'ply' },
-    { path: '../colmap_dense/dense/fused.ply',  type: 'ply' },
+    { path: '../mesh/scene_mesh.glb',  type: 'glb' },
+    { path: '../mesh/scene_mesh.gltf', type: 'glb' },
+    { path: '../mesh/scene_mesh.ply',  type: 'ply' },
+    { path: '../mesh/dense_pointcloud.ply', type: 'ply' },
     { path: '../openmvs/scene_dense_mesh_texture.obj', type: 'obj' },
-    { path: '../openmvs/scene_dense_mesh.obj',  type: 'obj' },
-    { path: '../openmvs/scene_mesh.obj',        type: 'obj' },
+    { path: '../openmvs/scene_dense_mesh.obj', type: 'obj' },
   ];
 
   const kfs = cameraPathData ? cameraPathData.keyframes : [];
-  const origin = kfs.length ? kfs[0].position : { x: 0, y: 0, z: 0 };
+  const origin = kfs.length ? kfs[0].position : { x:0, y:0, z:0 };
   const scale = 2;
 
   function tryLoad(idx) {
     if (idx >= candidates.length) {
-      console.log('[INFO] 메시 파일 없음 - COLMAP 또는 OpenMVS 실행 후 자동 로드됩니다');
+      console.log('[INFO] 메시 파일 없음 - RealityScan으로 생성 후 mesh/ 폴더에 배치하세요');
       return;
     }
     const { path, type } = candidates[idx];
     fetch(path, { method: 'HEAD' }).then(r => {
       if (!r.ok) { tryLoad(idx + 1); return; }
-      console.log('[INFO] 메시 로드:', path, '(' + type + ')');
+      console.log('[INFO] 메시 로드:', path);
 
-      if (type === 'ply') {
-        // PLY 로더 - THREE.PLYLoader 또는 직접 파싱
-        const loadPLY = (plyPath) => {
-          if (typeof THREE.PLYLoader !== 'undefined') {
-            const loader = new THREE.PLYLoader();
-            loader.load(plyPath,
-              (geometry) => {
-                geometry.computeVertexNormals();
-                const mat = new THREE.MeshPhongMaterial({
-                  color: 0x88aacc,
-                  opacity: 0.75,
-                  transparent: true,
-                  side: THREE.DoubleSide,
-                  vertexColors: geometry.hasAttribute('color')
-                });
-                const mesh = new THREE.Mesh(geometry, mat);
-                addMeshToMap3D(mesh, origin, scale);
-              },
-              (xhr) => { if (xhr.total) console.log('[INFO] PLY 로드:', Math.round(xhr.loaded/xhr.total*100) + '%'); },
-              (err) => { console.warn('[WARN] PLY 로드 실패:', err); tryLoad(idx + 1); }
-            );
-          } else {
-            // PLYLoader 없으면 fetch로 직접 파싱
-            console.log('[INFO] PLYLoader 없음, fetch로 직접 파싱:', plyPath);
-            fetch(plyPath)
-              .then(r => r.arrayBuffer())
-              .then(buf => {
-                const geometry = parsePLY(buf);
-                if (!geometry) { tryLoad(idx + 1); return; }
-                geometry.computeVertexNormals();
-                const mat = new THREE.MeshPhongMaterial({
-                  color: 0x88aacc, opacity: 0.75, transparent: true, side: THREE.DoubleSide,
-                  vertexColors: geometry.hasAttribute('color')
-                });
-                addMeshToMap3D(new THREE.Mesh(geometry, mat), origin, scale);
-              })
-              .catch(err => { console.warn('[WARN] PLY fetch 실패:', err); tryLoad(idx + 1); });
-          }
-        };
-        loadPLY(path);
-      } else {
-        // OBJ 로더
-        const loader = new THREE.OBJLoader();
-        const mtlPath = path.replace('.obj', '.mtl');
-        fetch(mtlPath, { method: 'HEAD' }).then(mr => {
-          if (mr.ok && typeof THREE.MTLLoader !== 'undefined') {
-            const mtlLoader = new THREE.MTLLoader();
-            mtlLoader.setPath(path.substring(0, path.lastIndexOf('/') + 1));
-            mtlLoader.load(mtlPath.split('/').pop(), (materials) => {
-              materials.preload();
-              loader.setMaterials(materials);
-              loadOBJ(loader, path, origin, scale);
-            });
-          } else {
-            loadOBJ(loader, path, origin, scale);
-          }
-        }).catch(() => loadOBJ(loader, path, origin, scale));
+      if (type === 'glb') {
+        if (typeof THREE.GLTFLoader !== 'undefined') {
+          const loader = new THREE.GLTFLoader();
+          loader.load(path,
+            (gltf) => {
+              const obj = gltf.scene;
+              addMeshToMap3D(obj, origin, scale, true);
+            },
+            undefined,
+            () => tryLoad(idx + 1)
+          );
+        } else { tryLoad(idx + 1); }
+
+      } else if (type === 'ply') {
+        if (typeof THREE.PLYLoader !== 'undefined') {
+          const loader = new THREE.PLYLoader();
+          loader.load(path,
+            (geometry) => {
+              geometry.computeVertexNormals();
+              const mat = new THREE.MeshPhongMaterial({
+                color: 0x88aacc, opacity: 0.55, transparent: true,
+                side: THREE.DoubleSide, vertexColors: geometry.hasAttribute('color')
+              });
+              addMeshToMap3D(new THREE.Mesh(geometry, mat), origin, scale, false);
+            },
+            undefined,
+            () => tryLoad(idx + 1)
+          );
+        } else {
+          fetch(path).then(r => r.arrayBuffer()).then(buf => {
+            const geo = parsePLY(buf);
+            if (!geo) { tryLoad(idx + 1); return; }
+            geo.computeVertexNormals();
+            const mat = new THREE.MeshPhongMaterial({ color: 0x88aacc, opacity: 0.55, transparent: true, side: THREE.DoubleSide });
+            addMeshToMap3D(new THREE.Mesh(geo, mat), origin, scale, false);
+          }).catch(() => tryLoad(idx + 1));
+        }
+
+      } else if (type === 'obj') {
+        if (typeof THREE.OBJLoader !== 'undefined') {
+          new THREE.OBJLoader().load(path,
+            (obj) => addMeshToMap3D(obj, origin, scale, true),
+            undefined,
+            () => tryLoad(idx + 1)
+          );
+        } else { tryLoad(idx + 1); }
       }
     }).catch(() => tryLoad(idx + 1));
   }
-
   tryLoad(0);
 }
 
-// PLY/OBJ 공통: 메시를 3D 맵에 추가
-function addMeshToMap3D(meshOrObj, origin, scale) {
-  if (meshObject) map3dScene.remove(meshObject);
-  meshObject = meshOrObj;
-
-  // OBJ는 Group이므로 traverse로 재질 처리
-  if (meshOrObj.isGroup) {
-    meshOrObj.traverse(child => {
-      if (child.isMesh && !child.material.map) {
-        child.material = new THREE.MeshPhongMaterial({
-          color: 0x88aacc, opacity: 0.7, transparent: true, side: THREE.DoubleSide
-        });
-      }
-    });
-  }
-
-  // PLY 메쉬는 SLAM 좌표계와 동일 → 포인트클라우드와 같은 변환 적용
-  // 포인트클라우드 변환: (x - origin.x)*scale, -(y - origin.y)*scale, -(z - origin.z)*scale
-  // 메쉬도 동일하게 변환
+function addMeshToMap3D(meshOrObj, origin, scale, isGroup) {
+  // 바운딩 박스 계산
   const box = new THREE.Box3().setFromObject(meshOrObj);
   const meshCenter = box.getCenter(new THREE.Vector3());
   const meshSize = box.getSize(new THREE.Vector3());
-  
-  // 포인트클라우드 bounds 계산 (씬에서)
-  const pts = map3dScene.children.filter(c => c.type === 'Points' && c.geometry && c.geometry.attributes.position.count > 100);
-  if (pts.length > 0) {
-    // 포인트클라우드와 메쉬의 실제 좌표 범위 비교
-    const ptBox = new THREE.Box3();
-    pts.forEach(p => ptBox.expandByObject(p));
-    const ptSize = ptBox.getSize(new THREE.Vector3());
-    const ptCenter = ptBox.getCenter(new THREE.Vector3());
-    
-    // 스케일: 포인트클라우드 크기 / 메쉬 크기
-    const scaleX = ptSize.x / meshSize.x;
-    const scaleZ = ptSize.z / meshSize.z;
-    const autoScale = (scaleX + scaleZ) / 2;
-    
-    meshOrObj.scale.setScalar(autoScale);
-    // 메쉬 중심을 포인트클라우드 중심으로 이동
-    meshOrObj.position.set(
-      ptCenter.x - meshCenter.x * autoScale,
-      ptCenter.y - meshCenter.y * autoScale,
-      ptCenter.z - meshCenter.z * autoScale
+
+  if (pointCloudData && pointCloudData.points.length > 0) {
+    // 포인트클라우드 좌표계 기준 정렬
+    const pts = pointCloudData.points;
+    const pcXs = pts.map(p => p[0]), pcYs = pts.map(p => p[1]), pcZs = pts.map(p => p[2]);
+    const pcCenter = {
+      x: (Math.min(...pcXs) + Math.max(...pcXs)) / 2,
+      y: (Math.min(...pcYs) + Math.max(...pcYs)) / 2,
+      z: (Math.min(...pcZs) + Math.max(...pcZs)) / 2
+    };
+    const pcRange = Math.max(
+      Math.max(...pcXs) - Math.min(...pcXs),
+      Math.max(...pcYs) - Math.min(...pcYs),
+      Math.max(...pcZs) - Math.min(...pcZs)
     );
-    console.log('[OK] 3D 메시 자동 정렬: scale=' + autoScale.toFixed(3));
+    const maxDim = Math.max(meshSize.x, meshSize.y, meshSize.z);
+    const s = maxDim > 0 ? (pcRange * scale / maxDim) : 1;
+    meshOrObj.scale.setScalar(s);
+    meshOrObj.position.set(
+      -(meshCenter.x - (pcCenter.x - origin.x)) * s,
+      -(meshCenter.y - (pcCenter.y - origin.y)) * s,
+      -(meshCenter.z - (pcCenter.z - origin.z)) * s
+    );
   } else {
-    // 포인트클라우드 없으면 기존 방식
     meshOrObj.position.sub(meshCenter);
     const maxDim = Math.max(meshSize.x, meshSize.y, meshSize.z);
     if (maxDim > 0) meshOrObj.scale.setScalar(scale * 2 / maxDim);
   }
 
+  meshObject = meshOrObj;
   map3dScene.add(meshOrObj);
   renderMap3D();
   console.log('[OK] 3D 메시 로드 완료');
 
-  // 메시 토글 버튼 활성화
   const btn = document.getElementById('btn-toggle-mesh');
   if (btn) { btn.style.display = 'inline-block'; btn.textContent = '🏗 메시 숨기기'; }
 }
 
-function loadOBJ(loader, path, origin, scale) {
-  loader.load(path,
-    (obj) => addMeshToMap3D(obj, origin, scale),
-    (xhr) => { if (xhr.total) console.log('[INFO] OBJ 로드:', Math.round(xhr.loaded/xhr.total*100) + '%'); },
-    (err) => console.warn('[WARN] OBJ 로드 실패:', err)
-  );
-}
-
-let map3dMouseDown = false, map3dDragged = false, map3dLastMouse = { x: 0, y: 0 };
-let map3dSpherical = { theta: 0.5, phi: 0.8, radius: 4 };
-
-// 3D 맵 클릭: 가장 가까운 키프레임으로 이동
-function onMap3DClick(e) {
-  if (map3dDragged) return; // 드래그 후 클릭은 무시
-  if (!cameraPathData) return;
-
-  const canvas = document.getElementById('map3d-canvas');
-  const rect = canvas.getBoundingClientRect();
-  // NDC 좌표 계산
-  const ndcX = ((e.clientX - rect.left) / rect.width)  *  2 - 1;
-  const ndcY = ((e.clientY - rect.top)  / rect.height) * -2 + 1;
-
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera({ x: ndcX, y: ndcY }, map3dCamera);
-
-  const kfs = cameraPathData.keyframes;
-  const origin = kfs[0].position;
-  const scale = 2;
-
-  // 각 키프레임 3D 위치와 레이의 최근접 거리 계산
-  let minDist = Infinity, bestIdx = 0;
-  kfs.forEach((kf, i) => {
-    const pos = new THREE.Vector3(
-      (kf.position.x - origin.x) * scale,
-      -(kf.position.y - origin.y) * scale,
-      -(kf.position.z - origin.z) * scale
-    );
-    const dist = raycaster.ray.distanceToPoint(pos);
-    if (dist < minDist) { minDist = dist; bestIdx = i; }
-  });
-
-  // 클릭 허용 반경: 화면 크기에 비례 (너무 멀면 무시)
-  if (minDist < 0.5) {
-    navigateTo(bestIdx);
-    // 3D 맵 패널 닫고 파노라마로 전환
-    setViewMode('panorama');
-  }
-}
-
+// ── 3D 맵 컨트롤 (드래그 + 클릭으로 키프레임 이동) ──
 function setupMap3DControls() {
   const canvas = document.getElementById('map3d-canvas');
   canvas.addEventListener('mousedown', e => {
@@ -933,14 +821,46 @@ function setupMap3DControls() {
   });
   canvas.addEventListener('mouseup', e => {
     map3dMouseDown = false;
-    onMap3DClick(e);
+    if (!map3dDragged) onMap3DClick(e);
   });
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    map3dSpherical.radius = Math.max(1, Math.min(10, map3dSpherical.radius + e.deltaY * 0.005));
+    map3dSpherical.radius = Math.max(1, Math.min(12, map3dSpherical.radius + e.deltaY * 0.005));
     updateMap3DCamera();
     renderMap3D();
   }, { passive: false });
+}
+
+function onMap3DClick(e) {
+  if (!cameraPathData) return;
+  const canvas = document.getElementById('map3d-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  const ndcY = ((e.clientY - rect.top) / rect.height) * -2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera({ x: ndcX, y: ndcY }, map3dCamera);
+
+  const kfs = cameraPathData.keyframes;
+  const origin = kfs[0].position;
+  const scale = 2;
+  let minDist = Infinity, bestIdx = 0;
+
+  kfs.forEach((kf, i) => {
+    const pos = new THREE.Vector3(
+      (kf.position.x - origin.x) * scale,
+      -(kf.position.y - origin.y) * scale,
+      -(kf.position.z - origin.z) * scale
+    );
+    const dist = raycaster.ray.distanceToPoint(pos);
+    if (dist < minDist) { minDist = dist; bestIdx = i; }
+  });
+
+  if (minDist < 0.5) {
+    navigateTo(bestIdx);
+    // 3D 맵 닫고 파노라마로 전환
+    setTimeout(() => setViewMode('panorama'), 300);
+  }
 }
 
 function updateMap3DCamera() {
@@ -955,17 +875,14 @@ function updateMap3DCamera() {
 
 function updateMap3D(kfIndex) {
   if (!map3dCurrentMarker || !cameraPathData) return;
-  
   const kf = cameraPathData.keyframes[kfIndex];
   const origin = cameraPathData.keyframes[0].position;
   const scale = 2;
-  
   map3dCurrentMarker.position.set(
     (kf.position.x - origin.x) * scale,
     -(kf.position.y - origin.y) * scale,
     -(kf.position.z - origin.z) * scale
   );
-  
   renderMap3D();
 }
 
@@ -977,9 +894,65 @@ function renderMap3D() {
 function toggleMap3D() {
   const panel = document.getElementById('map3d-panel');
   panel.classList.toggle('visible');
-  if (panel.classList.contains('visible')) {
-    renderMap3D();
-  }
+  if (panel.classList.contains('visible')) renderMap3D();
+}
+
+// ============================================================
+// 핫스팟 (파노라마 내 이동 포인터)
+// ============================================================
+function updateHotspots(kfIndex) {
+  const container = document.getElementById('hotspot-container');
+  container.innerHTML = '';
+  if (!cameraPathData) return;
+
+  const kfs = cameraPathData.keyframes;
+  const curr = kfs[kfIndex];
+
+  // 이전/다음 + 근처 키프레임 핫스팟
+  const neighbors = [];
+  if (kfIndex > 0) neighbors.push({ idx: kfIndex - 1, label: '◀', dir: -1 });
+  if (kfIndex < kfs.length - 1) neighbors.push({ idx: kfIndex + 1, label: '▶', dir: 1 });
+
+  // 5칸 이상 떨어진 점프 포인트도 추가 (선택적)
+  if (kfIndex + 5 < kfs.length) neighbors.push({ idx: kfIndex + 5, label: '▶▶', dir: 2 });
+  if (kfIndex - 5 >= 0) neighbors.push({ idx: kfIndex - 5, label: '◀◀', dir: -2 });
+
+  neighbors.forEach(({ idx, label, dir }) => {
+    const kf = kfs[idx];
+    const dx = kf.position.x - curr.position.x;
+    const dz = kf.position.z - curr.position.z;
+    const angle = Math.atan2(dx, dz); // 이동 방향 각도
+
+    // 파노라마 구체 위의 화면 좌표 계산
+    // theta 기준으로 화면 X 위치 계산
+    const relAngle = angle - sphericalAngles.theta;
+    const normalizedAngle = ((relAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    const screenX = ((normalizedAngle / (Math.PI * 2)) * 100 + 50) % 100;
+    const screenY = Math.abs(dir) === 1 ? 50 : 45;
+
+    const hotspot = document.createElement('div');
+    hotspot.className = 'hotspot';
+    hotspot.style.left = `${screenX}%`;
+    hotspot.style.top = `${screenY}%`;
+    hotspot.style.pointerEvents = 'all';
+    hotspot.title = `KF ${kf.id}로 이동`;
+
+    const arrow = document.createElement('span');
+    arrow.className = 'hotspot-arrow';
+    arrow.textContent = label;
+    hotspot.appendChild(arrow);
+
+    const lbl = document.createElement('span');
+    lbl.className = 'hotspot-label';
+    lbl.textContent = `KF ${kf.id}`;
+    hotspot.appendChild(lbl);
+
+    hotspot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateTo(idx);
+    });
+    container.appendChild(hotspot);
+  });
 }
 
 // ============================================================
@@ -987,10 +960,8 @@ function toggleMap3D() {
 // ============================================================
 function buildKeyframeList() {
   if (!cameraPathData) return;
-  
   const list = document.getElementById('keyframe-list');
   list.innerHTML = '';
-  
   cameraPathData.keyframes.forEach((kf, i) => {
     const item = document.createElement('div');
     item.className = 'kf-item';
@@ -998,10 +969,9 @@ function buildKeyframeList() {
     item.innerHTML = `
       <div class="kf-dot"></div>
       <div>
-        <div class="kf-id">KF ${kf.id}</div>
-        <div class="kf-pos">(${kf.position.x.toFixed(2)}, ${kf.position.z.toFixed(2)})</div>
-      </div>
-    `;
+        <div style="font-weight:500">KF ${kf.id}</div>
+        <div style="font-size:10px;color:#718096">(${kf.position.x.toFixed(2)}, ${kf.position.z.toFixed(2)})</div>
+      </div>`;
     item.addEventListener('click', () => navigateTo(i));
     list.appendChild(item);
   });
@@ -1011,48 +981,8 @@ function updateKeyframeList(activeIdx) {
   document.querySelectorAll('.kf-item').forEach((el, i) => {
     el.classList.toggle('active', i === activeIdx);
   });
-  
-  const activeEl = document.getElementById(`kf-item-${activeIdx}`);
-  if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-}
-
-// ============================================================
-// 핫스팟 (다음 위치 이동 버튼)
-// ============================================================
-function updateHotspots(kfIndex) {
-  const container = document.getElementById('hotspot-container');
-  container.innerHTML = '';
-  
-  if (!cameraPathData) return;
-  const kfs = cameraPathData.keyframes;
-  
-  // 이전/다음 키프레임 핫스팟 표시
-  const neighbors = [];
-  if (kfIndex > 0) neighbors.push({ idx: kfIndex - 1, label: '◀' });
-  if (kfIndex < kfs.length - 1) neighbors.push({ idx: kfIndex + 1, label: '▶' });
-  
-  neighbors.forEach(({ idx, label }) => {
-    const kf = kfs[idx];
-    const curr = kfs[kfIndex];
-    
-    // 방향 벡터 계산 (현재 → 이웃)
-    const dx = kf.position.x - curr.position.x;
-    const dz = kf.position.z - curr.position.z;
-    const angle = Math.atan2(dx, dz);
-    
-    // 화면 좌표 계산 (파노라마 구체 투영)
-    const screenX = 50 + Math.sin(angle) * 25;
-    const screenY = 50;
-    
-    const hotspot = document.createElement('div');
-    hotspot.className = 'hotspot';
-    hotspot.style.left = `${screenX}%`;
-    hotspot.style.top = `${screenY}%`;
-    hotspot.style.pointerEvents = 'all';
-    hotspot.title = `KF ${kf.id}로 이동`;
-    hotspot.addEventListener('click', () => navigateTo(idx));
-    container.appendChild(hotspot);
-  });
+  const active = document.getElementById(`kf-item-${activeIdx}`);
+  if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 // ============================================================
@@ -1096,16 +1026,16 @@ function toggleAutoPlay() {
       } else {
         navigateTo(currentKF + 1);
       }
-    }, 1500);
+    }, 1800);
   }
 }
 
 // ============================================================
-// 포인트 클라우드 토글
+// 토글
 // ============================================================
 function togglePointCloud() {
   showPointCloud = !showPointCloud;
-  if (pointCloudMesh) pointCloudMesh.visible = showPointCloud && viewMode === 'map3d';
+  if (pointCloudMesh) pointCloudMesh.visible = showPointCloud;
 }
 
 function toggleMesh() {
@@ -1116,30 +1046,28 @@ function toggleMesh() {
   renderMap3D();
 }
 
-// ============================================================
-// 뷰 모드
-// ============================================================
 function setViewMode(mode) {
   viewMode = mode;
   document.getElementById('btn-panorama').classList.toggle('active', mode === 'panorama');
   document.getElementById('btn-map3d').classList.toggle('active', mode === 'map3d');
-  
   if (mode === 'map3d') {
     document.getElementById('map3d-panel').classList.add('visible');
+    renderMap3D();
+  } else {
+    document.getElementById('map3d-panel').classList.remove('visible');
   }
 }
 
 // ============================================================
-// 마우스/터치 컨트롤 (파노라마 드래그)
+// 이벤트 리스너
 // ============================================================
 function setupEventListeners() {
   const canvas = document.getElementById('panorama-canvas');
-  
+
   canvas.addEventListener('mousedown', e => {
     isDragging = true;
     prevMouse = { x: e.clientX, y: e.clientY };
   });
-  
   canvas.addEventListener('mousemove', e => {
     if (!isDragging) return;
     const dx = e.clientX - prevMouse.x;
@@ -1147,17 +1075,16 @@ function setupEventListeners() {
     sphericalAngles.theta -= dx * 0.005;
     sphericalAngles.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalAngles.phi + dy * 0.005));
     prevMouse = { x: e.clientX, y: e.clientY };
+    cameraLerpActive = false; // 수동 드래그 시 보간 취소
     updateCameraDirection();
   });
-  
   canvas.addEventListener('mouseup', () => isDragging = false);
   canvas.addEventListener('mouseleave', () => isDragging = false);
-  
-  // 터치 지원
+
   canvas.addEventListener('touchstart', e => {
     isDragging = true;
     prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  });
+  }, { passive: true });
   canvas.addEventListener('touchmove', e => {
     if (!isDragging) return;
     const dx = e.touches[0].clientX - prevMouse.x;
@@ -1165,26 +1092,24 @@ function setupEventListeners() {
     sphericalAngles.theta -= dx * 0.005;
     sphericalAngles.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalAngles.phi + dy * 0.005));
     prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    cameraLerpActive = false;
     updateCameraDirection();
-  });
+  }, { passive: true });
   canvas.addEventListener('touchend', () => isDragging = false);
-  
-  // 마우스 휠 줌
+
   canvas.addEventListener('wheel', e => {
     camera.fov = Math.max(30, Math.min(120, camera.fov + e.deltaY * 0.05));
     camera.updateProjectionMatrix();
   });
-  
-  // 키보드
+
   window.addEventListener('keydown', e => {
     switch(e.key) {
       case 'ArrowLeft':  navigateTo(currentKF - 1); break;
       case 'ArrowRight': navigateTo(currentKF + 1); break;
-      case ' ': toggleAutoPlay(); break;
+      case ' ': e.preventDefault(); toggleAutoPlay(); break;
     }
   });
-  
-  // 리사이즈
+
   window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -1202,25 +1127,22 @@ function updateCameraDirection() {
 }
 
 // ============================================================
-// PLY 직접 파싱 (PLYLoader 폴백)
+// PLY 직접 파싱 (폴백)
 // ============================================================
 function parsePLY(buffer) {
   try {
     const decoder = new TextDecoder();
     const bytes = new Uint8Array(buffer);
-    // 헤더 파싱
     let headerEnd = 0;
     for (let i = 0; i < bytes.length - 10; i++) {
       if (decoder.decode(bytes.slice(i, i + 10)).startsWith('end_header')) {
         headerEnd = i + 10;
-        // 줄바꿈 건너뜀
         while (headerEnd < bytes.length && (bytes[headerEnd] === 10 || bytes[headerEnd] === 13)) headerEnd++;
         break;
       }
     }
     const header = decoder.decode(bytes.slice(0, headerEnd));
     const lines = header.split('\n').map(l => l.trim());
-    const isBinary = header.includes('binary_little_endian');
     const nVertex = parseInt((lines.find(l => l.startsWith('element vertex')) || '').split(' ')[2] || '0');
     const nFace = parseInt((lines.find(l => l.startsWith('element face')) || '').split(' ')[2] || '0');
     const props = [];
@@ -1233,13 +1155,11 @@ function parsePLY(buffer) {
         props.push({ type: p[1], name: p[2] });
       }
     }
-    const typeSize = { float: 4, float32: 4, double: 8, float64: 8, uchar: 1, uint8: 1, int: 4, int32: 4, short: 2, int16: 2 };
+    const typeSize = { float:4, float32:4, double:8, float64:8, uchar:1, uint8:1, int:4, int32:4, short:2, int16:2 };
     const vertexSize = props.reduce((s, p) => s + (typeSize[p.type] || 4), 0);
-    
     const positions = [], colors = [], indices = [];
     const view = new DataView(buffer);
     let offset = headerEnd;
-    
     for (let i = 0; i < nVertex; i++) {
       let vOffset = offset;
       const row = {};
@@ -1257,20 +1177,17 @@ function parsePLY(buffer) {
                   (row.green || row.diffuse_green || 128) / 255,
                   (row.blue || row.diffuse_blue || 128) / 255);
     }
-    
     for (let i = 0; i < nFace; i++) {
       const n = view.getUint8(offset); offset++;
       const face = [];
       for (let j = 0; j < n; j++) { face.push(view.getInt32(offset, true)); offset += 4; }
-      if (n === 3) { indices.push(...face); }
-      else if (n === 4) { indices.push(face[0], face[1], face[2], face[0], face[2], face[3]); }
+      if (n === 3) indices.push(...face);
+      else if (n === 4) indices.push(face[0], face[1], face[2], face[0], face[2], face[3]);
     }
-    
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     if (colors.length > 0) geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
     if (indices.length > 0) geometry.setIndex(indices);
-    console.log(`[INFO] PLY 파싱: ${nVertex} 정점, ${nFace} 면`);
     return geometry;
   } catch(e) {
     console.error('[ERROR] PLY 파싱 실패:', e);
@@ -1279,13 +1196,33 @@ function parsePLY(buffer) {
 }
 
 // ============================================================
-// 렌더 루프
+// 렌더 루프 (카메라 방향 보간 포함)
 // ============================================================
-function animate() {
+let lastTime = 0;
+function animate(time = 0) {
   requestAnimationFrame(animate);
+  const dt = Math.min((time - lastTime) / 1000, 0.1);
+  lastTime = time;
+
+  // 카메라 방향 부드러운 보간
+  if (cameraLerpActive) {
+    cameraLerpT += dt / CAMERA_LERP_DURATION;
+    if (cameraLerpT >= 1) {
+      cameraLerpT = 1;
+      cameraLerpActive = false;
+    }
+    // ease-in-out cubic
+    const t = cameraLerpT < 0.5
+      ? 4 * cameraLerpT * cameraLerpT * cameraLerpT
+      : 1 - Math.pow(-2 * cameraLerpT + 2, 3) / 2;
+
+    sphericalAngles.phi   = cameraLerpFrom.phi   + (cameraLerpTo.phi   - cameraLerpFrom.phi)   * t;
+    sphericalAngles.theta = cameraLerpFrom.theta + (cameraLerpTo.theta - cameraLerpFrom.theta) * t;
+    updateCameraDirection();
+  }
+
   renderer.render(scene, camera);
-  
-  // 3D 맵이 열려있으면 계속 렌더
+
   if (document.getElementById('map3d-panel').classList.contains('visible')) {
     renderMap3D();
   }
